@@ -1,0 +1,37 @@
+#!/bin/sh
+
+APP=audacious
+
+mkdir tmp;
+cd tmp;
+
+# DOWNLOADING THE DEPENDENCIES
+wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
+wget https://raw.githubusercontent.com/ivan-hc/AM-application-manager/main/tools/pkg2appimage
+chmod a+x ./appimagetool ./pkg2appimage
+
+# CREATING THE APPIMAGE
+echo "app: audacious
+binpatch: true
+
+ingredients:
+  dist: bionic
+  sources:
+    - deb http://archive.ubuntu.com/ubuntu/ bionic main universe restricted multiverse
+    - deb http://archive.ubuntu.com/ubuntu bionic-security main universe restricted multiverse
+    - deb http://archive.ubuntu.com/ubuntu/ bionic-updates main universe restricted multiverse
+  ppas:
+    - ubuntuhandbook1/apps
+  packages:
+    - audacious" >> recipe.yml;
+
+./pkg2appimage ./recipe.yml;
+cp ./$APP/$APP.AppDir/usr/share/icons/hicolor/scalable/apps/$APP.svg ./$APP/$APP.AppDir
+
+ARCH=x86_64 ./appimagetool -n ./$APP/$APP.AppDir;
+
+cd ..;
+mv ./tmp/*.AppImage ./;
+chmod a+x ./$APP
+
+rm -R -f ./tmp

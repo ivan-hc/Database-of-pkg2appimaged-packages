@@ -1,0 +1,35 @@
+#!/bin/sh
+
+APP=billard-gl
+
+mkdir tmp;
+cd tmp;
+
+# DOWNLOADING THE DEPENDENCIES
+wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
+wget https://raw.githubusercontent.com/ivan-hc/AM-application-manager/main/tools/pkg2appimage
+chmod a+x ./appimagetool ./pkg2appimage
+
+# CREATING THE APPIMAGE
+echo "app: billard-gl
+binpatch: true
+
+ingredients:
+  dist: stable
+  sources:
+    - deb http://ftp.debian.org/debian/ stable main contrib non-free
+  packages:
+    - billard-gl" >> recipe.yml;
+
+
+
+./pkg2appimage ./recipe.yml;
+cp ./$APP/$APP.AppDir/usr/share/pixmaps/* ./$APP/$APP.AppDir/
+cp ./$APP/$APP.AppDir/usr/share/pixmaps/billard-gl.xpm /opt/$APP/
+ARCH=x86_64 ./appimagetool -n ./$APP/$APP.AppDir;
+
+cd ..;
+mv ./tmp/*.AppImage ./;
+chmod a+x ./$APP
+
+rm -R -f ./tmp
