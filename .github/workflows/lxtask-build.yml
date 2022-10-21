@@ -37,8 +37,8 @@ jobs:
         - name: release
           uses: marvinpinto/action-automatic-releases@latest
           with:
-            title: lxtask
-            automatic_release_tag: lxtask
+            title: Applications
+            automatic_release_tag: applications
             prerelease: false
             draft: false
             files: |
