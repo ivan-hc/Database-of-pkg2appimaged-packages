@@ -18,7 +18,8 @@ jobs:
         chmod a+x ./extremetuxracer
         ./extremetuxracer
         mkdir dist
-        mv *AppImage dist/
+        VERSION=$(curl -s https://packages.debian.org/stable/extremetuxracer | grep "Package: extremetuxracer " | cut -c 31- | rev | cut -c 2- | rev)
+        mv *AppImage dist/Extreme_Tux_Racer-$VERSION-x86_64.AppImage
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
@@ -37,8 +38,8 @@ jobs:
         - name: release
           uses: marvinpinto/action-automatic-releases@latest
           with:
-            title: Applications
-            automatic_release_tag: applications
+            title: extremetuxracer
+            automatic_release_tag: extremetuxracer
             prerelease: false
             draft: false
             files: |

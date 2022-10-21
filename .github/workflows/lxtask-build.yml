@@ -18,7 +18,8 @@ jobs:
         chmod a+x ./lxtask
         ./lxtask
         mkdir dist
-        mv *AppImage dist/
+        VERSION=$(curl -s https://packages.debian.org/oldstable/lxtask | grep "Package: lxtask " | cut -c 21- | rev | cut -c 2- | rev)
+        mv *AppImage dist/Task_Manager-$VERSION-x86_64.AppImage
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
@@ -37,7 +38,7 @@ jobs:
         - name: release
           uses: marvinpinto/action-automatic-releases@latest
           with:
-            title: Applications
+            title: lxtask
             automatic_release_tag: lxtask
             prerelease: false
             draft: false

@@ -37,8 +37,8 @@ jobs:
         - name: release
           uses: marvinpinto/action-automatic-releases@latest
           with:
-            title: Applications
-            automatic_release_tag: applications
+            title: billard-gl
+            automatic_release_tag: billard-gl
             prerelease: false
             draft: false
             files: |
