@@ -4,8 +4,7 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
