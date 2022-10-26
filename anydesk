@@ -41,7 +41,7 @@ chmod a+x ./$APP
 
 rm -R -f ./tmp
 
-version=$(exec ./$APP --version | grep -Eo "[+-]?[0-9]+([.][0-9]+)?+[+-]?[0-9]+([.][0-9]+)?")
+version=$(exec ./$APP --version | grep -Eo "[+-]?[0-9]+([.][0-9]+)?+[+-]?")
 mv ./$APP ./AnyDesk-$version-x86_64.AppImage
 
 
