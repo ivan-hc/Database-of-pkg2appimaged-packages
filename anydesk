@@ -34,9 +34,10 @@ exec ${EXEC} "$@"
 EOF
 chmod a+x ./AnyDesk/AnyDesk.AppDir/AppRun
 ARCH=x86_64 ./appimagetool -n ./AnyDesk/AnyDesk.AppDir;
-version=$(exec ./*.AppImage --version | grep -Eo "[+-]?[0-9]+([.][0-9]+)?+[+-]?")
+version=$(ls ./AnyDesk/ | grep anydesk | grep .deb | cut -c 9- | rev | cut -c 11- | rev)
+mv ./*.AppImage ./AnyDesk-$version-x86_64.AppImage
 cd ..;
-mv ./tmp/*.AppImage ./AnyDesk-$(echo $version)-x86_64.AppImage
+mv ./tmp/*.AppImage ./
 chmod a+x ./*.AppImage
 
 rm -R -f ./tmp
