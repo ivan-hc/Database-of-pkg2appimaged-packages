@@ -20,7 +20,8 @@ jobs:
         chmod a+x ./anydesk
         ./anydesk
         mkdir dist
-        mv *AppImage dist/
+        version=$(exec ./*.AppImage --version | grep -Eo "[+-]?[0-9]+([.][0-9]+)?+[+-]?")
+        mv *AppImage dist/AnyDesk-$version-x86_64.AppImage
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
