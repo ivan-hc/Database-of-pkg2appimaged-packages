@@ -14,13 +14,14 @@ jobs:
 
     - name: build
       run: |
+        APP=kwave
         sudo apt update && sudo apt install libfuse2
-        wget https://raw.githubusercontent.com/ivan-hc/Database-of-pkg2appimaged-packages/main/kwave
-        chmod a+x ./kwave
-        ./kwave
+        wget https://raw.githubusercontent.com/ivan-hc/Database-of-pkg2appimaged-packages/main/$APP
+        chmod a+x ./$APP
+        sudo ./$APP
         mkdir dist
-        VERSION=$(curl -s https://packages.debian.org/stable/kwave | grep "Package: kwave " | cut -c 21- | rev | cut -c 2- | rev)
-        mv *AppImage dist/Kwave_Sound_Editor-$VERSION-x86_64.AppImage
+        VERSION=$(curl -s https://packages.debian.org/stable/$APP | grep "Package: $APP " | cut -c 21- | rev | cut -c 2- | rev)
+        mv /opt/$APP/$APP dist/Kwave_Sound_Editor-$VERSION-x86_64.AppImage
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
