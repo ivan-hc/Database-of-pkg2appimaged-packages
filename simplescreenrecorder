@@ -1,0 +1,46 @@
+#!/bin/sh
+
+APP=SimpleScreenRecorder
+
+mkdir tmp
+cd tmp
+
+# DOWNLOADING THE DEPENDENCIES
+wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-$(uname -m).AppImage -O appimagetool
+wget https://raw.githubusercontent.com/ivan-hc/AM-application-manager/main/tools/pkg2appimage
+version=$(curl -s https://api.github.com/repos/AppImageCommunity/pkg2appimage/releases/latest | grep browser_download_url | cut -d '"' -f 4 | head -1)
+wget $version -O pkg2appimage
+chmod a+x ./appimagetool ./pkg2appimage
+
+# CREATING THE APPIMAGE
+./pkg2appimage $APP
+
+# DOWNLOADING LIBUNIONPRELOAD
+wget https://github.com/project-portable/libunionpreload/releases/download/amd64/libunionpreload.so
+chmod a+x libunionpreload.so
+mv ./libunionpreload.so ./$APP/$APP.AppDir/
+
+# REPLACING THE EXISTING APPRUN WITH A CUSTOM ONE
+rm ./$APP/$APP.AppDir/AppRun
+cat >> ./$APP/$APP.AppDir/AppRun << 'EOF'
+#!/bin/sh
+HERE="$(dirname "$(readlink -f "${0}")")"
+export UNION_PRELOAD="${HERE}"
+export LD_PRELOAD="${HERE}/libunionpreload.so"
+export PATH="${HERE}"/usr/bin/:"${HERE}"/usr/sbin/:"${HERE}"/usr/games/:"${HERE}"/bin/:"${HERE}"/sbin/:"${PATH}"
+export LD_LIBRARY_PATH=/lib/:/lib64/:/usr/lib/:/lib/x86_64-linux-gnu/:"${HERE}"/usr/lib/:"${HERE}"/usr/lib/i386-linux-gnu/:"${HERE}"/usr/lib/x86_64-linux-gnu/:"${HERE}"/usr/lib32/:"${HERE}"/usr/lib64/:"${HERE}"/lib/:"${HERE}"/lib/i386-linux-gnu/:"${HERE}"/lib/x86_64-linux-gnu/:"${HERE}"/lib32/:"${HERE}"/lib64/:"${LD_LIBRARY_PATH}"
+export PYTHONPATH="${HERE}"/usr/share/pyshared/:"${PYTHONPATH}"
+export PYTHONHOME="${HERE}"/usr/
+export XDG_DATA_DIRS="${HERE}"/usr/share/:"${XDG_DATA_DIRS}"
+export PERLLIB="${HERE}"/usr/share/perl5/:"${HERE}"/usr/lib/perl5/:"${PERLLIB}"
+export GSETTINGS_SCHEMA_DIR="${HERE}"/usr/share/glib-2.0/schemas/:"${GSETTINGS_SCHEMA_DIR}"
+export QT_PLUGIN_PATH="${HERE}"/usr/lib/qt4/plugins/:"${HERE}"/usr/lib/i386-linux-gnu/qt4/plugins/:"${HERE}"/usr/lib/x86_64-linux-gnu/qt4/plugins/:"${HERE}"/usr/lib32/qt4/plugins/:"${HERE}"/usr/lib64/qt4/plugins/:"${HERE}"/usr/lib/qt5/plugins/:"${HERE}"/usr/lib/i386-linux-gnu/qt5/plugins/:"${HERE}"/usr/lib/x86_64-linux-gnu/qt5/plugins/:"${HERE}"/usr/lib32/qt5/plugins/:"${HERE}"/usr/lib64/qt5/plugins/:"${QT_PLUGIN_PATH}"
+EXEC=$(grep -e '^Exec=.*' "${HERE}"/*.desktop | head -n 1 | cut -d "=" -f 2- | sed -e 's|%.||g')
+exec ${EXEC} "$@"
+EOF
+chmod a+x ./$APP/$APP.AppDir/AppRun
+
+# EXPORT THE APPDIR TO AN APPIMAGE!
+ARCH=x86_64 ./appimagetool -n ./$APP/$APP.AppDir
+cd ..
+mv ./tmp/*.AppImage .
