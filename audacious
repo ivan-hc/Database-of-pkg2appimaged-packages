@@ -11,7 +11,7 @@ wget https://raw.githubusercontent.com/ivan-hc/AM-application-manager/main/tools
 chmod a+x ./appimagetool ./pkg2appimage
 
 # CREATING THE APPIMAGE
-UBUNTUOLDSTABLELTS=$(wget -q https://releases.ubuntu.com/ -O - | grep class | grep LTS | grep -m2 href | tail -n1 | sed -n 's/.*href="\([^"]*\).*/\1/p' | rev| cut -c 2- | rev)
+PREVIOUSLTS=$(wget -q https://releases.ubuntu.com/ -O - | grep class | grep LTS | grep -m2 href | tail -n1 | sed -n 's/.*href="\([^"]*\).*/\1/p' | rev| cut -c 2- | rev)
 echo "app: audacious
 binpatch: true
 
