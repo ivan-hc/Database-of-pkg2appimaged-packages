@@ -2,8 +2,8 @@
 
 APP=audacious
 
-mkdir tmp;
-cd tmp;
+mkdir tmp
+cd tmp
 
 # DOWNLOADING THE DEPENDENCIES
 wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
@@ -12,19 +12,22 @@ chmod a+x ./appimagetool ./pkg2appimage
 
 # CREATING THE APPIMAGE
 PREVIOUSLTS=$(wget -q https://releases.ubuntu.com/ -O - | grep class | grep LTS | grep -m2 href | tail -n1 | sed -n 's/.*href="\([^"]*\).*/\1/p' | rev| cut -c 2- | rev)
+VERSION=$(echo $(wget -q https://ppa.launchpadcontent.net/ubuntuhandbook1/apps/ubuntu/pool/main/a/audacious/ -O - | grep "audacious_" | grep "amd64.deb" | sort -u | tail -1 | grep -o -P '(?<=">audacious_).*(?=build)'))
 echo "app: audacious
 binpatch: true
 
 ingredients:
-  dist: stable
+  dist: $PREVIOUSLTS
   sources:
-    - deb http://deb.debian.org/debian/ stable main contrib non-free
-    - deb http://deb.debian.org/debian-security/ stable-security main contrib non-free
-    - deb http://deb.debian.org/debian stable-updates main contrib non-free
+    - deb http://archive.ubuntu.com/ubuntu/ $PREVIOUSLTS main universe restricted multiverse
+    - deb http://archive.ubuntu.com/ubuntu $PREVIOUSLTS-security main universe restricted multiverse
+    - deb http://archive.ubuntu.com/ubuntu/ $PREVIOUSLTS-updates main universe restricted multiverse
+  ppas:
+    - ubuntuhandbook1/apps
   packages:
-    - audacious" >> recipe.yml;
+    - audacious" >> recipe.yml
 
-./pkg2appimage ./recipe.yml;
+./pkg2appimage ./recipe.yml
 cp ./$APP/$APP.AppDir/usr/share/icons/hicolor/scalable/apps/$APP.svg ./$APP/$APP.AppDir
 
 # ...REPLACING THE EXISTING APPRUN WITH A CUSTOM ONE...
@@ -48,7 +51,6 @@ chmod a+x AppRun
 mv ./AppRun ./$APP/$APP.AppDir/AppRun
 
 ARCH=x86_64 ./appimagetool -n ./$APP/$APP.AppDir
-VERSION=$(echo $(wget -q https://packages.debian.org/stable/amd64/audacious/download -O - | grep "audacious_" | tail -1 | grep -o -P '(?<=audacious_).*(?=_amd64.deb)'))
 
 cd ..;
 mv ./tmp/*.AppImage ./Audacious-$VERSION-x86_64.AppImage
