@@ -16,13 +16,11 @@ echo "app: audacious
 binpatch: true
 
 ingredients:
-  dist: $PREVIOUSLTS
+  dist: stable
   sources:
-    - deb http://archive.ubuntu.com/ubuntu/ $PREVIOUSLTS main universe restricted multiverse
-    - deb http://archive.ubuntu.com/ubuntu $PREVIOUSLTS-security main universe restricted multiverse
-    - deb http://archive.ubuntu.com/ubuntu/ $PREVIOUSLTS-updates main universe restricted multiverse
-  ppas:
-    - ubuntuhandbook1/apps
+    - deb http://deb.debian.org/debian/ stable main contrib non-free
+    - deb http://deb.debian.org/debian-security/ stable-security main contrib non-free
+    - deb http://deb.debian.org/debian stable-updates main contrib non-free
   packages:
     - audacious" >> recipe.yml;
 
@@ -49,10 +47,10 @@ EOF
 chmod a+x AppRun
 mv ./AppRun ./$APP/$APP.AppDir/AppRun
 
-ARCH=x86_64 ./appimagetool -n ./$APP/$APP.AppDir;
+ARCH=x86_64 ./appimagetool -n ./$APP/$APP.AppDir
+VERSION=$(echo $(wget -q https://packages.debian.org/stable/amd64/audacious/download -O - | grep "audacious_" | tail -1 | grep -o -P '(?<=audacious_).*(?=_amd64.deb)'))
 
 cd ..;
-mv ./tmp/*.AppImage ./;
-chmod a+x ./$APP
+mv ./tmp/*.AppImage ./Audacious-$VERSION-x86_64.AppImage
 
 rm -R -f ./tmp
