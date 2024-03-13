@@ -97,6 +97,7 @@ cp ./$APP/$APP.AppDir/usr/share/applications/*$ICONNAME* ./$APP/$APP.AppDir/ 2>/
 
 # EXPORT THE APP TO AN APPIMAGE
 ARCH=x86_64 ./appimagetool -n ./$APP/$APP.AppDir
+VERSION=$(ls ./$APP/ | sort | grep -i $APP | grep .deb | head -1 | grep -o -P '(?<=_).*(?=_)')
 cd ..
-mv ./tmp/*.AppImage .
+mv ./tmp/*.AppImage ./SimpleScreenRecorder-"$VERSION"-x86_64.AppImage
 chmod a+x *.AppImage
