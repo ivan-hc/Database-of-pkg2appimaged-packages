@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 APP=simplescreenrecorder
 
@@ -24,82 +24,55 @@ rm -f ./recipe.yml
 
 # CREATING THE HEAD OF THE RECIPE
 echo "app: $APP
-binpatch: true
+union: true
 
 ingredients:
-
-  dist: bionic
-  sources:
-    - deb http://it.archive.ubuntu.com/ubuntu/ bionic main restricted universe multiverse
-    - deb http://it.archive.ubuntu.com/ubuntu/ bionic-security main restricted universe multiverse
-    - deb http://it.archive.ubuntu.com/ubuntu/ bionic-updates main restricted universe multiverse
-    - deb http://it.archive.ubuntu.com/ubuntu/ bionic-proposed main restricted universe multiverse
-    - deb http://it.archive.ubuntu.com/ubuntu/ bionic-backports main restricted universe multiverse
+  dist: trusty
+  script:
+    - wget https://github.com/tsujan/Kvantum/releases/download/V0.10.5/kvantum_0.10.5-ubuntuLTS_amd64.deb
+  sources: 
+    - deb http://it.archive.ubuntu.com/ubuntu/ trusty main universe
   ppas:
     - maarten-baert/simplescreenrecorder
-    - krisives/kvantum
   packages:
     - $APP
-    - simplescreenrecorder-lib
     - kvantum" >> recipe.yml
 
 
 # DOWNLOAD ALL THE NEEDED PACKAGES AND COMPILE THE APPDIR
 ./pkg2appimage ./recipe.yml
 
-# LIBUNIONPRELOAD
-#wget https://github.com/project-portable/libunionpreload/releases/download/amd64/libunionpreload.so
-#chmod a+x libunionpreload.so
-#mv ./libunionpreload.so ./$APP/$APP.AppDir/
+# DOWNLOADING LIBUNIONPRELOAD
+wget https://github.com/project-portable/libunionpreload/releases/download/amd64/libunionpreload.so
+chmod a+x libunionpreload.so
+mv ./libunionpreload.so ./$APP/$APP.AppDir/
 
-# COMPILE SCHEMAS
-glib-compile-schemas ./$APP/$APP.AppDir/usr/share/glib-2.0/schemas/ || echo "No ./usr/share/glib-2.0/schemas/"
-
-# CUSTOMIZE THE APPRUN
-rm -R -f ./$APP/$APP.AppDir/AppRun
+# REPLACING THE EXISTING APPRUN WITH A CUSTOM ONE
+rm ./$APP/$APP.AppDir/AppRun
 cat >> ./$APP/$APP.AppDir/AppRun << 'EOF'
 #!/bin/sh
 HERE="$(dirname "$(readlink -f "${0}")")"
 export UNION_PRELOAD="${HERE}"
-#export LD_PRELOAD="${HERE}"/libunionpreload.so
-export LD_LIBRARY_PATH=/lib/:/lib64/:/lib/x86_64-linux-gnu/:/usr/lib/:/usr/lib/x86_64-linux-gnu/:"${HERE}"/usr/lib/:"${HERE}"/usr/lib/x86_64-linux-gnu/:"${HERE}"/lib/:"${HERE}"/lib/x86_64-linux-gnu/:"${LD_LIBRARY_PATH}"
+export LD_PRELOAD="${HERE}/libunionpreload.so"
 export PATH="${HERE}"/usr/bin/:"${HERE}"/usr/sbin/:"${HERE}"/usr/games/:"${HERE}"/bin/:"${HERE}"/sbin/:"${PATH}"
+export LD_LIBRARY_PATH=/lib/:/lib64/:/usr/lib/:/lib/x86_64-linux-gnu/:"${HERE}"/usr/lib/:"${HERE}"/usr/lib/i386-linux-gnu/:"${HERE}"/usr/lib/x86_64-linux-gnu/:"${HERE}"/usr/lib32/:"${HERE}"/usr/lib64/:"${HERE}"/lib/:"${HERE}"/lib/i386-linux-gnu/:"${HERE}"/lib/x86_64-linux-gnu/:"${HERE}"/lib32/:"${HERE}"/lib64/:"${LD_LIBRARY_PATH}"
+export PYTHONPATH="${HERE}"/usr/share/pyshared/:"${PYTHONPATH}"
+export PYTHONHOME="${HERE}"/usr/
 export XDG_DATA_DIRS="${HERE}"/usr/share/:"${XDG_DATA_DIRS}"
-export QT_PLUGIN_PATH="${HERE}"/usr/lib/x86_64-linux-gnu/qt5/plugins/:"${QT_PLUGIN_PATH}"
+export PERLLIB="${HERE}"/usr/share/perl5/:"${HERE}"/usr/lib/perl5/:"${PERLLIB}"
+export GSETTINGS_SCHEMA_DIR="${HERE}"/usr/share/glib-2.0/schemas/:"${GSETTINGS_SCHEMA_DIR}"
+export QT_PLUGIN_PATH="${HERE}"/usr/lib/qt4/plugins/:"${HERE}"/usr/lib/i386-linux-gnu/qt4/plugins/:"${HERE}"/usr/lib/x86_64-linux-gnu/qt4/plugins/:"${HERE}"/usr/lib32/qt4/plugins/:"${HERE}"/usr/lib64/qt4/plugins/:"${HERE}"/usr/lib/qt5/plugins/:"${HERE}"/usr/lib/i386-linux-gnu/qt5/plugins/:"${HERE}"/usr/lib/x86_64-linux-gnu/qt5/plugins/:"${HERE}"/usr/lib32/qt5/plugins/:"${HERE}"/usr/lib64/qt5/plugins/:"${QT_PLUGIN_PATH}"
 export QT_FONT_DPI=96
 if test -d /usr/share/Kvantum; then
 	export QT_STYLE_OVERRIDE=kvantum
 fi
-export LC_MESSAGES=$(echo "$LANG")
-export LANG=$(echo "$LANG")
-export LANGUAGE=$(echo "$LANG")
 EXEC=$(grep -e '^Exec=.*' "${HERE}"/*.desktop | head -n 1 | cut -d "=" -f 2- | sed -e 's|%.||g')
 exec ${EXEC} "$@"
 EOF
-	
-# MADE THE APPRUN EXECUTABLE
 chmod a+x ./$APP/$APP.AppDir/AppRun
-# END OF THE PART RELATED TO THE APPRUN, NOW WE WELL SEE IF EVERYTHING WORKS ----------------------------------------------------------------------
 
-# IMPORT THE LAUNCHER AND THE ICON TO THE APPDIR IF THEY NOT EXIST
-if test -f ./$APP/$APP.AppDir/*.desktop; then
-	echo "The desktop file exists"
-else
-	echo "Trying to get the .desktop file"
-	cp ./$APP/$APP.AppDir/usr/share/applications/*$(ls . | grep -i $APP | cut -c -4)*desktop ./$APP/$APP.AppDir/ 2>/dev/null
-fi
-
-ICONNAME=$(cat ./$APP/$APP.AppDir/*desktop | grep "Icon=" | head -1 | cut -c 6-)
-cp ./$APP/$APP.AppDir/usr/share/icons/hicolor/22x22/apps/*$ICONNAME* ./$APP/$APP.AppDir/ 2>/dev/null
-cp ./$APP/$APP.AppDir/usr/share/icons/hicolor/24x24/apps/*$ICONNAME* ./$APP/$APP.AppDir/ 2>/dev/null
-cp ./$APP/$APP.AppDir/usr/share/icons/hicolor/32x32/apps/*$ICONNAME* ./$APP/$APP.AppDir/ 2>/dev/null
-cp ./$APP/$APP.AppDir/usr/share/icons/hicolor/48x48/apps/*$ICONNAME* ./$APP/$APP.AppDir/ 2>/dev/null
-cp ./$APP/$APP.AppDir/usr/share/icons/hicolor/64x64/apps/*$ICONNAME* ./$APP/$APP.AppDir/ 2>/dev/null
-cp ./$APP/$APP.AppDir/usr/share/icons/hicolor/128x128/apps/*$ICONNAME* ./$APP/$APP.AppDir/ 2>/dev/null
-cp ./$APP/$APP.AppDir/usr/share/icons/hicolor/256x256/apps/*$ICONNAME* ./$APP/$APP.AppDir/ 2>/dev/null
-cp ./$APP/$APP.AppDir/usr/share/icons/hicolor/512x512/apps/*$ICONNAME* ./$APP/$APP.AppDir/ 2>/dev/null
-cp ./$APP/$APP.AppDir/usr/share/icons/hicolor/scalable/apps/*$ICONNAME* ./$APP/$APP.AppDir/ 2>/dev/null
-cp ./$APP/$APP.AppDir/usr/share/applications/*$ICONNAME* ./$APP/$APP.AppDir/ 2>/dev/null
+# DEBLOAT
+rm -R -f ./$APP/$APP.AppDir/usr/lib/x86_64-linux-gnu/qt5
 
 # EXPORT THE APP TO AN APPIMAGE
 ARCH=x86_64 ./appimagetool -n ./$APP/$APP.AppDir
