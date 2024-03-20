@@ -21,7 +21,7 @@ jobs:
         sudo ./$APP
         mkdir dist
         VERSION=$(curl -s https://packages.debian.org/stable/$APP | grep "Package: $APP " | cut -c 21- | rev | cut -c 2- | rev)
-        mv /opt/$APP/$APP dist/Kwave_Sound_Editor-$VERSION-x86_64.AppImage
+        mv ./*.AppImage dist/Kwave_Sound_Editor-$VERSION-x86_64.AppImage
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
