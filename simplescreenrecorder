@@ -11,7 +11,7 @@ if test -f ./appimagetool; then
 	echo " appimagetool already exists" 1> /dev/null
 else
 	echo " Downloading appimagetool..."
-	wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
+	wget -q $(wget -q https://api.github.com/repos/probonopd/go-appimage/releases -O - | grep -v zsync | grep -i continuous | grep -i appimagetool | grep -i x86_64 | grep browser_download_url | cut -d '"' -f 4 | head -1) -O appimagetool
 fi
 if test -f ./pkg2appimage; then
 	echo " pkg2appimage already exists" 1> /dev/null
@@ -75,7 +75,7 @@ chmod a+x ./$APP/$APP.AppDir/AppRun
 rm -R -f ./$APP/$APP.AppDir/usr/lib/x86_64-linux-gnu/qt5
 
 # EXPORT THE APP TO AN APPIMAGE
-ARCH=x86_64 ./appimagetool -n ./$APP/$APP.AppDir
+ARCH=x86_64 VERSION=$(./appimagetool -v | grep -o '[[:digit:]]*') ./appimagetool -s ./$APP/$APP.AppDir
 VERSION=$(ls ./$APP/ | sort | grep -i $APP | grep .deb | head -1 | grep -o -P '(?<=_).*(?=_)')
 cd ..
 mv ./tmp/*.AppImage ./SimpleScreenRecorder-"$VERSION"-x86_64.AppImage
