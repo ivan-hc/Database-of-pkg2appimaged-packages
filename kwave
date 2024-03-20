@@ -73,7 +73,7 @@ ARCH=x86_64 VERSION=$(./appimagetool -v | grep -o '[[:digit:]]*') ./appimagetool
 
 cd ..;
 mv ./tmp/*.AppImage ./
-V=$(curl -s https://packages.debian.org/stable/$APP | grep "Package: $APP " | cut -c 21- | rev | cut -c 2- | rev)
-mv ./*.AppImage dist/Kwave_Sound_Editor-"$V"-x86_64.AppImage
+VERSION=$(curl -s https://packages.debian.org/stable/$APP | grep "Package: $APP " | cut -c 21- | rev | cut -c 2- | rev)
+mv ./*.AppImage ./Kwave_Sound_Editor-"$VERSION"-x86_64.AppImage
 
 rm -R -f ./tmp
