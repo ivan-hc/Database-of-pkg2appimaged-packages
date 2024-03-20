@@ -2,15 +2,6 @@
 
 APP=kwave
  
-# CREATING THE FOLDER
-mkdir /opt/$APP
-cd /opt/$APP;
-
-# ADD THE REMOVER
-echo '#!/bin/sh' >> /opt/$APP/remove
-echo "rm -R -f /usr/share/applications/AM-$APP.desktop /opt/$APP /usr/local/bin/$APP" >> /opt/$APP/remove
-chmod a+x /opt/$APP/remove
-APP=kwave
 mkdir tmp;
 cd tmp;
 
@@ -33,8 +24,6 @@ ingredients:
     - deb http://deb.debian.org/debian stable-backports main contrib non-free
   packages:
     - kwave" >> recipe.yml;
-
-cp /opt/$APP/tmp/recipe.yml /opt/$APP/recipe.yml
 
 ./pkg2appimage ./recipe.yml;
 
@@ -62,7 +51,6 @@ EXEC=$(grep -e '^Exec=.*' "${HERE}"/*.desktop | head -n 1 | cut -d "=" -f 2- | s
 exec ${EXEC} "$@"
 EOF
 chmod a+x AppRun
-cp ./AppRun /opt/$APP/
 mv ./AppRun ./$APP/$APP.AppDir
 
 wget https://apps.kde.org/app-icons/org.kde.kwave.svg -O ./$APP/$APP.AppDir/$APP.svg
