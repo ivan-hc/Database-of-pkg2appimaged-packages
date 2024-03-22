@@ -79,7 +79,7 @@ else
 	cp ./$APP/$APP.AppDir/usr/share/applications/*$(ls . | grep -i $APP | cut -c -4)*desktop ./$APP/$APP.AppDir/ 2>/dev/null
 fi
 
-wget https://upload.wikimedia.org/wikipedia/commons/8/86/Utilities-system-monitor.svg -O ./$APP/$APP.AppDir/utilities-system-monitor.svg 2>/dev/null
+wget https://upload.wikimedia.org/wikipedia/commons/8/86/Utilities-system-monitor.svg -O ./$APP/$APP.AppDir/utilities-system-monitor.png 2>/dev/null
 
 # UNCOMMENT THE FOLLOWING LINE TO REMOVE FILES IN "METAINFO" IN CASE OF ERRORS WITH "APPSTREAM"
 rm -R -f ./$APP/$APP.AppDir/usr/share/metainfo/*
