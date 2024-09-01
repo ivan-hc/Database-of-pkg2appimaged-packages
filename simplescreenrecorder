@@ -76,7 +76,7 @@ rm -R -f ./$APP/$APP.AppDir/usr/lib/x86_64-linux-gnu/qt5
 
 # EXPORT THE APP TO AN APPIMAGE
 ARCH=x86_64 ./appimagetool --comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 20 ./$APP/$APP.AppDir
-VERSION=$(ls ./$APP/ | sort | grep -i $APP | grep .deb | head -1 | grep -o -P '(?<=_).*(?=_)')
+VERSION=$(ls ./$APP/ | sort | grep -i $APP | grep .deb | head -1 | grep -o -P '(?<=_).*(?=_)' | sed 's/~.*//g')
 cd ..
 mv ./tmp/*.AppImage ./SimpleScreenRecorder-"$VERSION"-x86_64.AppImage
 chmod a+x *.AppImage
