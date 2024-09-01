@@ -103,7 +103,7 @@ else
 	echo "Trying to get the .desktop file"
 	cp "./$APP/$APP.AppDir/usr/share/applications/*$(find . -type f -name "*$APP*.desktop" | head -1 | sed 's:.*/::')*" ./"$APP"/"$APP".AppDir/ 2>/dev/null
 fi
-sed -i 's/SingleMainWindow/X-SingleMainWindow/g' ./"$APP"/"$APP".AppDir/*.desktop
+sed -i 's/SingleMainWindow/X-SingleMainWindow/g' ./"$APP"/"$APP".AppDir/usr/share/applications/*.desktop
 
 ICONNAME=$(cat ./"$APP"/"$APP".AppDir/*desktop | grep "Icon=" | head -1 | cut -c 6-)
 cp ./"$APP"/"$APP".AppDir/usr/share/icons/hicolor/22x22/apps/*"$ICONNAME"* ./"$APP"/"$APP".AppDir/ 2>/dev/null
