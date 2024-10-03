@@ -19,8 +19,7 @@ jobs:
         chmod a+x ./asunder
         ./asunder
         mkdir dist
-        VERSION=$(curl -s https://packages.debian.org/oldstable/asunder | grep "Package: asunder " | cut -c 23- | rev | cut -c 2- | rev)
-        mv *AppImage dist/Asunder-$VERSION-x86_64.AppImage
+        mv *AppImage dist/
     - name: Upload artifact
       uses: actions/upload-artifact@v4.4.0
       with:

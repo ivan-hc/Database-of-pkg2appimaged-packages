@@ -19,8 +19,7 @@ jobs:
         chmod a+x ./extremetuxracer
         ./extremetuxracer
         mkdir dist
-        VERSION=$(curl -s https://packages.debian.org/stable/extremetuxracer | grep "Package: extremetuxracer " | cut -c 31- | rev | cut -c 2- | rev)
-        mv *AppImage dist/Extreme_Tux_Racer-$VERSION-x86_64.AppImage
+        mv *AppImage dist/
     - name: Upload artifact
       uses: actions/upload-artifact@v4.4.0
       with:
