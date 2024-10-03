@@ -1,10 +1,10 @@
 #!/bin/sh
 
+set -u
 APP=simplescreenrecorder
 
 # CREATE A TEMPORARY DIRECTORY
-mkdir -p tmp
-cd tmp
+mkdir -p tmp && cd tmp || exit 1
 
 # DOWNLOADING THE DEPENDENCIES
 if test -f ./appimagetool; then
@@ -36,20 +36,31 @@ ingredients:
     - maarten-baert/simplescreenrecorder
   packages:
     - $APP
-    - kvantum" >> recipe.yml
+    - kvantum" > recipe.yml
 
 
 # DOWNLOAD ALL THE NEEDED PACKAGES AND COMPILE THE APPDIR
 ./pkg2appimage ./recipe.yml
 
-# DOWNLOADING LIBUNIONPRELOAD
-wget https://github.com/project-portable/libunionpreload/releases/download/amd64/libunionpreload.so
-chmod a+x libunionpreload.so
-mv ./libunionpreload.so ./$APP/$APP.AppDir/
+# VERSION
+MAIN_DEB=$(find . -type f -name "$APP\_*.deb" | head -1 | sed 's:.*/::')
+if test -f ./"$APP"/"$MAIN_DEB"; then
+	ar x ./"$APP"/"$MAIN_DEB" && tar xf ./control.tar.* && rm -f ./control.tar.* ./data.tar.* || exit 1
+	VERSION=$(grep Version 0<control | cut -c 10- | sed 's/~.*//g; s/+/-/g')
+else
+	VERSION="test"
+fi
 
-# REPLACING THE EXISTING APPRUN WITH A CUSTOM ONE
-rm ./$APP/$APP.AppDir/AppRun
-cat >> ./$APP/$APP.AppDir/AppRun << 'EOF'
+# LIBUNIONPRELOAD
+rm -f ./"$APP"/"$APP".AppDir/libunionpreload.so
+wget -q https://github.com/project-portable/libunionpreload/releases/download/amd64/libunionpreload.so -O ./"$APP"/"$APP".AppDir/libunionpreload.so && chmod a+x ./"$APP"/"$APP".AppDir/libunionpreload.so || exit 1
+
+# COMPILE SCHEMAS
+glib-compile-schemas ./"$APP"/"$APP".AppDir/usr/share/glib-2.0/schemas/ || echo "No ./usr/share/glib-2.0/schemas/"
+
+# CUSTOMIZE THE APPRUN
+rm -R -f ./"$APP"/"$APP".AppDir/AppRun
+cat >> ./"$APP"/"$APP".AppDir/AppRun << 'EOF'
 #!/bin/sh
 HERE="$(dirname "$(readlink -f "${0}")")"
 export UNION_PRELOAD="${HERE}"
@@ -69,14 +80,31 @@ fi
 EXEC=$(grep -e '^Exec=.*' "${HERE}"/*.desktop | head -n 1 | cut -d "=" -f 2- | sed -e 's|%.||g')
 exec ${EXEC} "$@"
 EOF
-chmod a+x ./$APP/$APP.AppDir/AppRun
+	
+# MADE THE APPRUN EXECUTABLE
+chmod a+x ./"$APP"/"$APP".AppDir/AppRun
+# END OF THE PART RELATED TO THE APPRUN, NOW WE WELL SEE IF EVERYTHING WORKS ----------------------------------------------------------------------
+
+# IMPORT THE LAUNCHER AND THE ICON TO THE APPDIR IF THEY NOT EXIST
+if test -f ./"$APP"/"$APP".AppDir/*.desktop; then
+	echo "The desktop file exists"
+else
+	echo "Trying to get the .desktop file"
+	cp "./$APP/$APP.AppDir/usr/share/applications/*$(find . -type f -name "*$APP*.desktop" | head -1 | sed 's:.*/::')*" ./"$APP"/"$APP".AppDir/ 2>/dev/null
+fi
 
 # DEBLOAT
-rm -R -f ./$APP/$APP.AppDir/usr/lib/x86_64-linux-gnu/qt5
+rm -R -f ./"$APP"/"$APP".AppDir/usr/lib/x86_64-linux-gnu/qt5
+rm -R -f ./"$APP"/"$APP".AppDir/usr/lib/x86_64-linux-gnu/*Qt*so.5*
+strip --strip-debug ./"$APP"/"$APP".AppDir/usr/lib/*
+strip --strip-debug ./"$APP"/"$APP".AppDir/usr/lib/x86_64-linux-gnu/*
+strip --strip-unneeded ./"$APP"/"$APP".AppDir/usr/bin/*
 
 # EXPORT THE APP TO AN APPIMAGE
-ARCH=x86_64 ./appimagetool --comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 20 ./$APP/$APP.AppDir
-VERSION=$(ls ./$APP/ | sort | grep -i $APP | grep .deb | head -1 | grep -o -P '(?<=_).*(?=_)' | sed 's/~.*//g')
-cd ..
-mv ./tmp/*.AppImage ./SimpleScreenRecorder-"$VERSION"-x86_64.AppImage
-chmod a+x *.AppImage
+printf '#!/bin/sh\nexit 0' > ./desktop-file-validate # hack due to https://github.com/AppImage/appimagetool/pull/47
+chmod a+x ./desktop-file-validate
+PATH="$PATH:$PWD" ARCH=x86_64 ./appimagetool --comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 20 ./"$APP"/"$APP".AppDir
+if ! test -f ./*.AppImage; then
+	echo "No AppImage available."; exit 1
+fi 
+cd .. && mv ./tmp/*.AppImage ./SimpleScreenRecorder-"$VERSION"-x86_64.AppImage && chmod a+x ./*.AppImage || exit 1
