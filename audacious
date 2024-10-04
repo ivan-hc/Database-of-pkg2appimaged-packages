@@ -24,17 +24,14 @@ rm -f ./recipe.yml
 
 # CREATING THE HEAD OF THE RECIPE
 echo "app: $APP
-binpatch: true
+union: true
 
 ingredients:
-
-  dist: stable
-  #script:
-    #- COMMAND
-  sources:
-    - deb http://ftp.debian.org/debian/ stable main contrib non-free
-    - deb http://security.debian.org/debian-security/ stable-security main contrib non-free
-    - deb http://ftp.debian.org/debian/ stable-updates main contrib non-free
+  dist: bionic
+  sources: 
+    - deb http://it.archive.ubuntu.com/ubuntu/ bionic main universe
+  ppas:
+    - ubuntuhandbook1/apps
   packages:
     - $APP" > recipe.yml
 
@@ -46,7 +43,7 @@ ingredients:
 MAIN_DEB=$(find . -type f -name "$APP\_*.deb" | head -1 | sed 's:.*/::')
 if test -f ./"$APP"/"$MAIN_DEB"; then
 	ar x ./"$APP"/"$MAIN_DEB" && tar xf ./control.tar.* && rm -f ./control.tar.* ./data.tar.* || exit 1
-	VERSION=$(grep Version 0<control | cut -c 10-)
+	VERSION=$(grep Version 0<control | cut -c 10- | sed 's/~.*//g; s/+/-/g')
 else
 	VERSION="test"
 fi
@@ -103,7 +100,6 @@ else
 	echo "Trying to get the .desktop file"
 	cp "./$APP/$APP.AppDir/usr/share/applications/*$(find . -type f -name "*$APP*.desktop" | head -1 | sed 's:.*/::')*" ./"$APP"/"$APP".AppDir/ 2>/dev/null
 fi
-sed -i 's/SingleMainWindow/X-SingleMainWindow/g' ./"$APP"/"$APP".AppDir/usr/share/applications/*.desktop
 
 ICONNAME=$(cat ./"$APP"/"$APP".AppDir/*desktop | grep "Icon=" | head -1 | cut -c 6-)
 cp ./"$APP"/"$APP".AppDir/usr/share/icons/hicolor/22x22/apps/*"$ICONNAME"* ./"$APP"/"$APP".AppDir/ 2>/dev/null
@@ -116,6 +112,11 @@ cp ./"$APP"/"$APP".AppDir/usr/share/icons/hicolor/256x256/apps/*"$ICONNAME"* ./"
 cp ./"$APP"/"$APP".AppDir/usr/share/icons/hicolor/512x512/apps/*"$ICONNAME"* ./"$APP"/"$APP".AppDir/ 2>/dev/null
 cp ./"$APP"/"$APP".AppDir/usr/share/icons/hicolor/scalable/apps/*"$ICONNAME"* ./"$APP"/"$APP".AppDir/ 2>/dev/null
 cp ./"$APP"/"$APP".AppDir/usr/share/applications/*"$ICONNAME"* ./"$APP"/"$APP".AppDir/ 2>/dev/null
+
+# DEBLOAT
+strip --strip-debug ./"$APP"/"$APP".AppDir/usr/lib/*
+strip --strip-debug ./"$APP"/"$APP".AppDir/usr/lib/x86_64-linux-gnu/*
+strip --strip-unneeded ./"$APP"/"$APP".AppDir/usr/bin/*
 
 # EXPORT THE APP TO AN APPIMAGE
 printf '#!/bin/sh\nexit 0' > ./desktop-file-validate # hack due to https://github.com/AppImage/appimagetool/pull/47
