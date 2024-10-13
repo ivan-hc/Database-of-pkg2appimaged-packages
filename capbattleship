@@ -7,7 +7,7 @@ cd tmp;
 
 # DOWNLOADING THE DEPENDENCIES
 wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
-wget https://raw.githubusercontent.com/ivan-hc/AM-application-manager/main/tools/pkg2appimage
+wget -q https://github.com/AppImageCommunity/pkg2appimage/releases/download/continuous/pkg2appimage--x86_64.AppImage -O pkg2appimage
 chmod a+x ./appimagetool ./pkg2appimage
 
 # CREATING THE APPIMAGE: APPDIR FROM A RECIPE...
