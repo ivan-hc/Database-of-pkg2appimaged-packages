@@ -4,11 +4,13 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  schedule:
+    - cron: "0 1 * * 1"
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v3
 
