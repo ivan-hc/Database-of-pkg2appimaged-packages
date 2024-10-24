@@ -345,7 +345,7 @@ echo "-----------------------------------------------------------"
 echo ""
 
 # SAVE FILES USING KEYWORDS
-BINSAVED="certificates uname cat readelf readlink dirname" # Enter here keywords to find and save in /usr/bin
+BINSAVED="certificates uname cat readelf readlink dirname grep" # Enter here keywords to find and save in /usr/bin
 SHARESAVED="certificates SAVESHAREPLEASE" # Enter here keywords or file/directory names to save in both /usr/share and /usr/lib
 lib_browser_launcher="gio-launch-desktop libdl.so libpthread.so librt.so libasound.so libX11-xcb.so libgtk-3.so" # Libraries and files needed to launche the default browser
 LIBSAVED="pk p11 alsa jack pipewire pulse girepository Graphene cairo libgstplayer libcups \
@@ -358,7 +358,12 @@ function _savebins() {
 	mv ./"$APP".AppDir/.junest/usr/bin/*$BIN* ./save/
 	mv ./"$APP".AppDir/.junest/usr/bin/bash ./save/
  	mv ./"$APP".AppDir/.junest/usr/bin/bwrap ./save/
+ 	mv ./"$APP".AppDir/.junest/usr/bin/cut ./save/
 	mv ./"$APP".AppDir/.junest/usr/bin/env ./save/
+	mv ./"$APP".AppDir/.junest/usr/bin/head ./save/
+	mv ./"$APP".AppDir/.junest/usr/bin/id ./save/
+	mv ./"$APP".AppDir/.junest/usr/bin/ls ./save/
+	mv ./"$APP".AppDir/.junest/usr/bin/sed ./save/
 	mv ./"$APP".AppDir/.junest/usr/bin/sh ./save/
  	mv ./"$APP".AppDir/.junest/usr/bin/tr ./save/
    	mv ./"$APP".AppDir/.junest/usr/bin/tty ./save/
