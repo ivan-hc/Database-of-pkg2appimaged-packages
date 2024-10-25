@@ -350,7 +350,7 @@ SHARESAVED="certificates SAVESHAREPLEASE" # Enter here keywords or file/director
 lib_browser_launcher="gio-launch-desktop libdl.so libpthread.so librt.so libasound.so libX11-xcb.so libgtk-3.so" # Libraries and files needed to launche the default browser
 LIBSAVED="pk p11 alsa jack pipewire pulse girepository Graphene cairo libgstplayer libcups \
 	libprintbackend libgstgl libmedia-gstreamer libcolord python libibus libdebuginfod \
-	gdk-pixbuf librsvg libdav libLLVM libGL libgdk-3 libgtk-3 $lib_browser_launcher" # Enter here keywords or file/directory names to save in /usr/lib
+	gdk-pixbuf librsvg libdav libLLVM libGL libgdk-3 libgtk-3 libOpenGL $lib_browser_launcher" # Enter here keywords or file/directory names to save in /usr/lib
 
 # Save files in /usr/bin
 function _savebins() {
