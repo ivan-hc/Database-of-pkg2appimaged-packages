@@ -356,6 +356,7 @@ LIBSAVED="pk p11 alsa jack pipewire pulse girepository Graphene cairo libgstplay
 function _savebins() {
 	mkdir save
 	mv ./"$APP".AppDir/.junest/usr/bin/*$BIN* ./save/
+	mv ./"$APP".AppDir/.junest/usr/bin/basename ./save/
 	mv ./"$APP".AppDir/.junest/usr/bin/bash ./save/
  	mv ./"$APP".AppDir/.junest/usr/bin/bwrap ./save/
  	mv ./"$APP".AppDir/.junest/usr/bin/cut ./save/
