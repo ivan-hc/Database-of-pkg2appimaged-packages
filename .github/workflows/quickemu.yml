@@ -1,0 +1,48 @@
+name: QuickEMU Appimage
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  schedule:
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: build
+      run: |
+        sudo apt update && sudo apt install desktop-file-utils
+        chmod a+x ./quickemu
+        ./quickemu
+        mkdir dist
+        mv *AppImage* dist/
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4.4.0
+      with:
+        name: quickemu-x86_64.AppImage
+        path: 'dist'
+        
+  release:
+      needs: [build]
+      runs-on: ubuntu-latest
+
+      steps:
+        - uses: actions/download-artifact@v4.1.8
+          with:
+            name: quickemu-x86_64.AppImage
+
+        - name: release
+          uses: marvinpinto/action-automatic-releases@latest
+          with:
+            title: quickemu
+            automatic_release_tag: quickemu
+            prerelease: false
+            draft: false
+            files: |
+              *.AppImage*
+            repo_token: ${{ secrets.GITHUB_TOKEN }}
