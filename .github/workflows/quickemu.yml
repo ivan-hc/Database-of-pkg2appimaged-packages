@@ -17,8 +17,8 @@ jobs:
     - name: build
       run: |
         sudo apt update && sudo apt install desktop-file-utils
-        chmod a+x ./quickemu
-        ./quickemu
+        chmod a+x ./quickemu-junest.sh
+        ./quickemu-junest.sh
         mkdir dist
         mv *AppImage** dist/
     - name: Upload artifact
