@@ -4,22 +4,23 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  schedule:
+    - cron: "0 6 * * 1"
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v3
 
     - name: build
       run: |
-        sudo apt update && sudo apt install libfuse2 desktop-file-utils
-        wget https://raw.githubusercontent.com/ivan-hc/Database-of-pkg2appimaged-packages/main/audacious
-        chmod a+x ./audacious
-        ./audacious
+        sudo apt update && sudo apt install desktop-file-utils
+        chmod a+x ./audacious-junest.sh
+        ./audacious-junest.sh
         mkdir dist
-        mv *AppImage dist/
+        mv *AppImage** dist/
     - name: Upload artifact
       uses: actions/upload-artifact@v4.4.0
       with:
@@ -38,10 +39,10 @@ jobs:
         - name: release
           uses: marvinpinto/action-automatic-releases@latest
           with:
-            title: audacious
+            title: Audacious
             automatic_release_tag: audacious
             prerelease: false
             draft: false
             files: |
-              *.AppImage
+              *.AppImage**
             repo_token: ${{ secrets.GITHUB_TOKEN }}
