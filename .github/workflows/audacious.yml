@@ -39,7 +39,7 @@ jobs:
         - name: release
           uses: marvinpinto/action-automatic-releases@latest
           with:
-            title: Audacious
+            title: audacious
             automatic_release_tag: audacious
             prerelease: false
             draft: false
