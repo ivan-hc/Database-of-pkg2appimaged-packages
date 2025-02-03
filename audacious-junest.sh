@@ -17,7 +17,7 @@ lib_browser_launcher="gio-launch-desktop libasound.so libatk-bridge libatspi lib
 LIBSAVED="libportaudio.so libswresample.so libgcrypt.so libsoxr.so libnghttp libxcb libuuid libvpx.so libidn libinstpatch libssh libdav \
 libpsl.so libopencore- librsvg libsnappy.so libaom.so libgsm.so libjxl.so libjxl_threads.so libopenjp librav libspeex.so libSvtAv \
 libtheoraenc libtheoradec libx26 libxvidcore libva.so libvpl.so libdvdnav.so libdvdread.so libbluray.so libgnutls.so libsrt.so libzmq.so \
-libva-drm libva-x11 libvdpau.so libOpenCL.so libsharpyuv.so libhogweed.so libnettle.so libsodium.so libpgm $lib_audio_keywords $lib_browser_launcher"
+libva-drm libva-x11 libvdpau.so libOpenCL.so libsharpyuv.so libhogweed.so libnettle.so libsodium.so libpgm libSDL $lib_audio_keywords $lib_browser_launcher"
 
 [ -n "$lib_browser_launcher" ] && DEPENDENCES="$DEPENDENCES xapp hicolor-icon-theme"
 
