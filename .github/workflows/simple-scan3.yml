@@ -1,0 +1,46 @@
+name: simple-scan3 Appimage
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: build
+      run: |
+        sudo apt update && sudo apt install libfuse2 desktop-file-utils
+        chmod a+x ./simple-scan3
+        ./simple-scan3
+        mkdir dist
+        mv *AppImage dist/
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4.4.0
+      with:
+        name: simple-scan3-x86_64.AppImage
+        path: 'dist'
+        
+  release:
+      needs: [build]
+      runs-on: ubuntu-latest
+
+      steps:
+        - uses: actions/download-artifact@v4.1.8
+          with:
+            name: simple-scan3-x86_64.AppImage
+
+        - name: release
+          uses: marvinpinto/action-automatic-releases@latest
+          with:
+            title: simple-scan3
+            automatic_release_tag: simple-scan3
+            prerelease: false
+            draft: false
+            files: |
+              *.AppImage
+            repo_token: ${{ secrets.GITHUB_TOKEN }}
