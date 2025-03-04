@@ -15,7 +15,7 @@ SHARESAVED="SAVESHAREPLEASE"
 lib_audio_keywords="alsa jack pipewire pulse"
 lib_browser_launcher="gio-launch-desktop libasound.so libatk-bridge libatspi libcloudproviders libdb- libdl.so libedit libepoxy libgtk-3.so.0 libjson-glib libnssutil libpthread.so librt.so libtinysparql libwayland-cursor libX11-xcb.so libxapp-gtk3-module.so libXcursor libXdamage libXi.so libxkbfile.so libXrandr p11 pk"
 LIBSAVED="libabsl libproxy libsodium libsoxr libcurl libduktape libnghttp libssh libpsl libxcb libuuid \
-libogg.so libvorbisenc.so libFLAC.so libmpg123.so libmp3lame.so \
+libogg.so libvorbisenc.so libFLAC.so libmpg123.so libmp3lame.so GLX \
 libsensors $lib_audio_keywords $lib_browser_launcher"
 
 [ -n "$lib_browser_launcher" ] && DEPENDENCES="$DEPENDENCES xapp hicolor-icon-theme"
@@ -534,9 +534,9 @@ _remove_more_bloatwares() {
 	rm -Rf ./"$APP".AppDir/.junest/usr/include # files related to the compiler
 	rm -Rf ./"$APP".AppDir/.junest/usr/share/man # AppImages are not ment to have man command
 	rm -Rf ./"$APP".AppDir/.junest/usr/lib/python*/__pycache__/* # if python is installed, removing this directory can save several megabytes
-	rm -Rf ./"$APP".AppDir/.junest/usr/lib/libgallium*
+	#rm -Rf ./"$APP".AppDir/.junest/usr/lib/libgallium*
 	rm -Rf ./"$APP".AppDir/.junest/usr/lib/libgo.so*
-	rm -Rf ./"$APP".AppDir/.junest/usr/lib/libLLVM* # included in the compilation phase, can sometimes be excluded for daily use
+	#rm -Rf ./"$APP".AppDir/.junest/usr/lib/libLLVM* # included in the compilation phase, can sometimes be excluded for daily use
 	rm -Rf ./"$APP".AppDir/.junest/var/* # remove all packages downloaded with the package manager
 }
 
