@@ -13,9 +13,11 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: build
+      if: always()
       run: |
-        sudo apt update && sudo apt install libfuse2 desktop-file-utils
-        wget https://raw.githubusercontent.com/ivan-hc/Database-of-pkg2appimaged-packages/main/baobab3
+        sudo apt update && sudo apt install desktop-file-utils
+        sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
+        sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
         chmod a+x ./baobab3
         ./baobab3
         mkdir dist
