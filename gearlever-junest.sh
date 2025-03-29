@@ -33,6 +33,14 @@ if [ ! -f ./appimagetool ]; then
 	curl -#Lo appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage && chmod a+x appimagetool
 fi
 
+# Download the patched BubbleWrap
+if [ ! -f ./bwrap-x86_64  ]; then
+	echo "-----------------------------------------------------------------------------"
+	echo "◆ Downloading \"bwrap\" from https://github.com/VHSgunzo/bubblewrap-static"
+	echo "-----------------------------------------------------------------------------"
+	curl -#Lo bwrap-x86_64 "$(curl -Ls https://api.github.com/repos/VHSgunzo/bubblewrap-static/releases | sed 's/[()",{} ]/\n/g' | grep -oi "https.*download.*bwrap-x86_64$" | head -1)" && chmod a+x bwrap-x86_64
+fi
+
 # Create and enter the AppDir
 mkdir -p "$APP".AppDir archlinux && cd archlinux || exit 1
 
@@ -562,6 +570,9 @@ find ./"$APP".AppDir/.junest/usr -type f -regex '.*\.so.*' -exec strip --strip-d
 find ./"$APP".AppDir/.junest/usr/bin -type f ! -regex '.*\.so.*' -exec strip --strip-unneeded {} \;
 find ./"$APP".AppDir/.junest/usr -type d -empty -delete
 _enable_mountpoints_for_the_inbuilt_bubblewrap
+
+# Replace BubbleWrap with the static one
+rm -f ./"$APP".AppDir/.junest/usr/bin/bwrap && cp -r bwrap-x86_64 ./"$APP".AppDir/.junest/usr/bin/bwrap
 
 #############################################################################
 #	CREATE THE APPIMAGE
