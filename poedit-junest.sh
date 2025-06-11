@@ -2,7 +2,7 @@
 
 APP=poedit
 BIN="$APP" #CHANGE THIS IF THE NAME OF THE BINARY IS DIFFERENT FROM "$APP" (for example, the binary of "obs-studio" is "obs")
-DEPENDENCES="gettext aspell enchant gspell gvfs hspell hunspell libvoikko nuspell xdg-utils" #SYNTAX: "APP1 APP2 APP3 APP4...", LEAVE BLANK IF NO OTHER DEPENDENCIES ARE NEEDED
+DEPENDENCES="gettext aspell enchant gspell gvfs hspell hunspell libvoikko nuspell xdg-utils libsoup3" #SYNTAX: "APP1 APP2 APP3 APP4...", LEAVE BLANK IF NO OTHER DEPENDENCIES ARE NEEDED
 #BASICSTUFF="binutils debugedit gzip"
 #COMPILERS="base-devel"
 
@@ -10,11 +10,14 @@ DEPENDENCES="gettext aspell enchant gspell gvfs hspell hunspell libvoikko nuspel
 #	KEYWORDS TO FIND AND SAVE WHEN COMPILING THE APPIMAGE
 #############################################################################
 
-BINSAVED="SAVEBINSPLEASE"
-SHARESAVED="SAVESHAREPLEASE"
+BINSAVED="gio spell"
+SHARESAVED="xml mime"
 #lib_audio_keywords="alsa jack pipewire pulse"
 lib_browser_launcher="gio-launch-desktop libasound.so libatk-bridge libatspi libcloudproviders libdb- libdl.so libedit libepoxy libgtk-3.so.0 libjson-glib libnssutil libpthread.so librt.so libtinysparql libwayland-cursor libX11-xcb.so libxapp-gtk3-module.so libXcursor libXdamage libXi.so libxkbfile.so libXrandr p11 pk"
-LIBSAVED="gdk-pixbuf libnghttp libidn libssh libssl libunistring libtss libSDL libvoikko libenchant spell $lib_audio_keywords $lib_browser_launcher"
+LIBSAVED="gdk-pixbuf libnghttp libidn libssh libssl libunistring libtss libSDL libvoikko libenchant spell\
+libsoup libpsl libgssapi libboost libwoff libgpg libunwind liborc libGLX libgudev libsharp libjxl libhwy \
+libbrotli libyuv libdav librav libSvtAv libaom libhidapi libevdev libGLdispatch libudev gio girepository \
+libgvfs libhogweed libproxy $lib_audio_keywords $lib_browser_launcher"
 
 [ -n "$lib_browser_launcher" ] && DEPENDENCES="$DEPENDENCES xapp hicolor-icon-theme"
 
@@ -287,7 +290,7 @@ chmod a+x "$APP".AppDir/AppRun
 #	EXTRACT PACKAGES
 #############################################################################
 
-[ -z "$extraction_count" ] && extraction_count=1
+[ -z "$extraction_count" ] && extraction_count=0
 [ ! -f ./autodeps ] && echo "$extraction_count" > ./autodeps
 [ -f ./autodeps ] && autodeps=$(cat ./autodeps)
 [ "$autodeps" != "$extraction_count" ] && rm -Rf ./deps ./packages && echo "$extraction_count" > ./autodeps
@@ -341,7 +344,7 @@ _extract_package() {
 			tar fx "$pkg_full_path" -C ./deps/ --warning=no-unknown-keyword
 			echo "$pkgname" >> ./packages
 		fi
-		[ -n "$lib_browser_launcher" ] && [[ "$arg" =~ (hicolor-icon-theme|xapp|gettext|aspell|enchant|gspell|hspell|hunspell|libvoikko|nuspell|xdg-utils) ]] && tar fx "$pkg_full_path" -C ./base/ --warning=no-unknown-keyword --exclude='.PKGINFO'
+		[ -n "$lib_browser_launcher" ] && [[ "$arg" =~ (hicolor-icon-theme|xapp|gettext|aspell|enchant|gspell|hspell|hunspell|libsoup3|libvoikko|nuspell|xdg-utils) ]] && tar fx "$pkg_full_path" -C ./base/ --warning=no-unknown-keyword --exclude='.PKGINFO'
 	fi
 }
 
@@ -499,7 +502,7 @@ _rsync_main_package() {
 _rsync_dependences() {
 	rm -Rf ./deps/.*
 	chmod -R 777 ./deps/*
-	rsync -av ./deps/ ./"$APP".AppDir/.junest/ | echo "◆ Rsync all dependencies, please wait"
+	#rsync -av ./deps/ ./"$APP".AppDir/.junest/ | echo "◆ Rsync all dependencies, please wait"
 }
 
 _rsync_main_package
