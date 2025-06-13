@@ -17,7 +17,7 @@ lib_browser_launcher="gio-launch-desktop libasound.so libatk-bridge libatspi lib
 LIBSAVED="gdk-pixbuf libnghttp libidn libssh libssl libunistring libtss libSDL libvoikko libenchant spell\
 libsoup libpsl libgssapi libboost libwoff libgpg libunwind liborc libGLX libgudev libsharp libjxl libhwy \
 libbrotli libyuv libdav librav libSvtAv libaom libhidapi libevdev libGLdispatch libudev gio girepository \
-libgvfs libhogweed libproxy xkb $lib_audio_keywords $lib_browser_launcher"
+libgvfs libhogweed libproxy webkit xkb $lib_audio_keywords $lib_browser_launcher"
 
 [ -n "$lib_browser_launcher" ] && DEPENDENCES="$DEPENDENCES xapp hicolor-icon-theme"
 
