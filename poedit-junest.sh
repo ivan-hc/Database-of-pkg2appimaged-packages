@@ -11,7 +11,7 @@ DEPENDENCES="gettext aspell enchant gspell gvfs hspell hunspell libvoikko nuspel
 #############################################################################
 
 BINSAVED="gio spell"
-SHARESAVED="xml mime"
+SHARESAVED="xml mime X11 wayland"
 #lib_audio_keywords="alsa jack pipewire pulse"
 lib_browser_launcher="gio-launch-desktop libasound.so libatk-bridge libatspi libcloudproviders libdb- libdl.so libedit libepoxy libgtk-3.so.0 libjson-glib libnssutil libpthread.so librt.so libtinysparql libwayland-cursor libX11-xcb.so libxapp-gtk3-module.so libXcursor libXdamage libXi.so libxkbfile.so libXrandr p11 pk"
 LIBSAVED="gdk-pixbuf libnghttp libidn libssh libssl libunistring libtss libSDL libvoikko libenchant spell\
