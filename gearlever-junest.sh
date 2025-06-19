@@ -562,6 +562,7 @@ _enable_mountpoints_for_the_inbuilt_bubblewrap() {
 	rm -f ./"$APP".AppDir/.junest/etc/localtime && touch ./"$APP".AppDir/.junest/etc/localtime
 	rm -f ./"$APP".AppDir/.junest/etc/os-release && touch ./"$APP".AppDir/.junest/etc/os-release
 	[ ! -f ./"$APP".AppDir/.junest/etc/asound.conf ] && touch ./"$APP".AppDir/.junest/etc/asound.conf
+	[ ! -e ./"$APP".AppDir/.junest/usr/share/X11/xkb ] && rm -f ./"$APP".AppDir/.junest/usr/share/X11/xkb && mkdir -p ./"$APP".AppDir/.junest/usr/share/X11/xkb && sed -i -- 's# /var"$# /usr/share/X11/xkb /var"#g' ./"$APP".AppDir/AppRun
 }
 
 _remove_more_bloatwares
