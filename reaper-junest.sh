@@ -571,8 +571,8 @@ _enable_mountpoints_for_the_inbuilt_bubblewrap
 if test -f ./*.AppImage; then rm -Rf ./*archimage*.AppImage; fi
 
 APPNAME=$(cat ./"$APP".AppDir/*.desktop | grep 'Name=' | head -1 | cut -c 6- | sed 's/ /-/g')
-REPO="$APPNAME-appimage"
-TAG="continuous"
+REPO="Database-of-pkg2appimaged-packages"
+TAG="reaper"
 VERSION="$VERSION"
 UPINFO="gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|$REPO|$TAG|*x86_64.AppImage.zsync"
 
