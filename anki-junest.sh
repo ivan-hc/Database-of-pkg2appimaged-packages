@@ -10,7 +10,7 @@ COMPILERS="base-devel"
 #	KEYWORDS TO FIND AND SAVE WHEN COMPILING THE APPIMAGE
 #############################################################################
 
-BINSAVED="SAVEBINSPLEASE"
+BINSAVED="xdg"
 SHARESAVED="applications"
 lib_audio_keywords="alsa jack pipewire pulse wayland"
 lib_browser_launcher="gio-launch-desktop libasound.so libatk-bridge libatspi libcloudproviders libdb- libdl.so libedit libepoxy libgtk-3.so.0 libjson-glib libnssutil libpthread.so librt.so libtinysparql libwayland-cursor libX11-xcb.so libxapp-gtk3-module.so libXcursor libXdamage libXi.so libxkbfile.so libXrandr p11 pk"
