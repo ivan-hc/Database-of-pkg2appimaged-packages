@@ -2,7 +2,7 @@
 
 APP=anki-bin
 BIN="anki" #CHANGE THIS IF THE NAME OF THE BINARY IS DIFFERENT FROM "$APP" (for example, the binary of "obs-studio" is "obs")
-DEPENDENCES="python python-pip-system-certs qt6-wayland" #SYNTAX: "APP1 APP2 APP3 APP4...", LEAVE BLANK IF NO OTHER DEPENDENCIES ARE NEEDED
+DEPENDENCES="python python-pip-system-certs qt6-wayland xdg-utils" #SYNTAX: "APP1 APP2 APP3 APP4...", LEAVE BLANK IF NO OTHER DEPENDENCIES ARE NEEDED
 BASICSTUFF="binutils debugedit gzip"
 COMPILERS="base-devel"
 
@@ -10,13 +10,13 @@ COMPILERS="base-devel"
 #	KEYWORDS TO FIND AND SAVE WHEN COMPILING THE APPIMAGE
 #############################################################################
 
-BINSAVED="xdg"
+BINSAVED="gio"
 SHARESAVED="applications"
 lib_audio_keywords="alsa jack pipewire pulse wayland"
 lib_browser_launcher="gio-launch-desktop libasound.so libatk-bridge libatspi libcloudproviders libdb- libdl.so libedit libepoxy libgtk-3.so.0 libjson-glib libnssutil libpthread.so librt.so libtinysparql libwayland-cursor libX11-xcb.so libxapp-gtk3-module.so libXcursor libXdamage libXi.so libxkbfile.so libXrandr p11 pk"
 LIBSAVED="gdk-pixbuf libproxy libnghttp libidn libssh libpsl libunistring libQt libsharpyuv libabsl libsodium libpgm libsoxr libjxl libhwy \
 libbrotli rpds libxcb libuuid libglslang libv4lconvert libogg.so libvorbis libFLAC.so libmpg123.so libopus.so libmpg libmp3lame.so \
-SDL EGL libGL gambas wayland libva python libnss libsensors $lib_audio_keywords $lib_browser_launcher"
+SDL EGL libGL gambas wayland libva python libnss libsensors gio $lib_audio_keywords $lib_browser_launcher"
 
 [ -n "$lib_browser_launcher" ] && DEPENDENCES="$DEPENDENCES xapp hicolor-icon-theme"
 
@@ -343,7 +343,7 @@ _extract_package() {
 			tar fx "$pkg_full_path" -C ./deps/ --warning=no-unknown-keyword
 			echo "$pkgname" >> ./packages
 		fi
-		[ -n "$lib_browser_launcher" ] && [[ "$arg" =~ (hicolor-icon-theme|xapp) ]] && tar fx "$pkg_full_path" -C ./base/ --warning=no-unknown-keyword --exclude='.PKGINFO'
+		[ -n "$lib_browser_launcher" ] && [[ "$arg" =~ (hicolor-icon-theme|xapp|xdg-utils) ]] && tar fx "$pkg_full_path" -C ./base/ --warning=no-unknown-keyword --exclude='.PKGINFO'
 	fi
 }
 
