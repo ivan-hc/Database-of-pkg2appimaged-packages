@@ -76,8 +76,7 @@ export QT_PLUGIN_PATH="${HERE}"/usr/lib/qt4/plugins/:"${HERE}"/usr/lib/i386-linu
 if test -d /usr/share/Kvantum; then
 	export QT_STYLE_OVERRIDE=kvantum
 fi
-EXEC=$(grep -e '^Exec=.*' "${HERE}"/*.desktop | head -n 1 | cut -d "=" -f 2- | sed -e 's|%.||g')
-exec ${EXEC} "$@"
+exec "${HERE}"/usr/bin/simplescreenrecorder "$@"
 EOF
 	
 # MADE THE APPRUN EXECUTABLE
