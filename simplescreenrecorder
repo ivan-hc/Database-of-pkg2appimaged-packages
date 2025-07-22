@@ -94,6 +94,8 @@ fi
 # DEBLOAT
 rm -R -f ./"$APP"/"$APP".AppDir/usr/lib/x86_64-linux-gnu/qt5
 rm -R -f ./"$APP"/"$APP".AppDir/usr/lib/x86_64-linux-gnu/*Qt*so.5*
+rm -R -f ./"$APP"/"$APP".AppDir/usr/lib/x86_64-linux-gnu/libharfbuzz*
+rm -R -f ./"$APP"/"$APP".AppDir/usr/lib/x86_64-linux-gnu/libfreetype*
 strip --strip-debug ./"$APP"/"$APP".AppDir/usr/lib/*
 strip --strip-debug ./"$APP"/"$APP".AppDir/usr/lib/x86_64-linux-gnu/*
 strip --strip-unneeded ./"$APP"/"$APP".AppDir/usr/bin/*
