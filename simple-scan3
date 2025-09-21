@@ -30,9 +30,9 @@ ingredients:
 
   dist: oldoldstable
   sources:
-    - deb http://ftp.debian.org/debian/ oldstable main contrib non-free
-    - deb http://security.debian.org/debian-security/ oldstable-security main contrib non-free
-    - deb http://ftp.debian.org/debian/ oldstable-updates main contrib non-free
+    - deb http://ftp.debian.org/debian/ oldoldstable main contrib non-free
+    - deb http://security.debian.org/debian-security/ oldoldstable-security main contrib non-free
+    - deb http://ftp.debian.org/debian/ oldoldstable-updates main contrib non-free
   packages:
     - simple-scan" >> recipe.yml
 
@@ -86,7 +86,10 @@ cp ./$APP/$APP.AppDir/usr/share/icons/hicolor/scalable/apps/*$ICONNAME* ./$APP/$
 cp ./$APP/$APP.AppDir/usr/share/applications/*$ICONNAME* ./$APP/$APP.AppDir/ 2>/dev/null
 
 # UNCOMMENT THE FOLLOWING LINE TO REMOVE FILES IN "METAINFO" IN CASE OF ERRORS WITH "APPSTREAM"
+rm -R -f ./$APP/$APP.AppDir/usr/share/doc
 rm -R -f ./$APP/$APP.AppDir/usr/share/metainfo/*
+rm -R -f ./$APP/$APP.AppDir/usr/share/perl
+rm -R -f ./$APP/$APP.AppDir/usr/lib/*/perl
 
 # EXPORT THE APP TO AN APPIMAGE
 ARCH=x86_64 ./appimagetool --comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 20 ./$APP/$APP.AppDir
