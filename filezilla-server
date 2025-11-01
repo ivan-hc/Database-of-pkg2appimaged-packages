@@ -76,13 +76,13 @@ Comment[de]=Dateien über FTP, FTPS und SFTP übertragen
 Comment[fr]=Transférer des fichiers via FTP, FTPS et SFTP
 Exec=filezilla-server-gui
 Terminal=false
-Icon=filezilla
+Icon=filezilla-server-gui
 Type=Application
 Categories=Network;FileTransfer;
 Version=1.0" > "$APP".AppDir/*.desktop
 
 # ICON
-cp -r "$APP".AppDir/share/icons/hicolor/256x256/apps/* "$APP".AppDir/"$APP".png || exit 1
+cp -r "$APP".AppDir/share/icons/hicolor/256x256/apps/* "$APP".AppDir/filezilla-server-gui.png || exit 1
 
 # CONVERT THE APPDIR TO AN APPIMAGE
 
