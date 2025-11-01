@@ -1,7 +1,6 @@
 #!/bin/sh
 
 APP=sunvox
-APPIMAGE_DIR="$APP.AppDir"
 
 export ARCH="x86_64"
 
@@ -24,7 +23,7 @@ _appimagetool() {
 }
 
 # CREATE DIRECTORIES
-mkdir -p "tmp/$APPIMAGE_DIR" && cd tmp || exit 1
+mkdir -p tmp/"$APP".AppDir && cd tmp || exit 1
 
 # DOWNLOAD AND EXTRACT
 pkg_name=$(curl -Ls https://warmplace.ru/soft/sunvox/ | tr '"<> ' '\n' | grep "zip" | head -1)
@@ -36,16 +35,16 @@ fi
 
 VERSION=$(ls . | grep "zip" | grep -Eo "[0-9].*.zip" | sed 's/\.zip//g')
 
-cp -r ./sunvox/sunvox/linux_x86_64/sunvox "$APPIMAGE_DIR"/
+cp -r ./sunvox/sunvox/linux_x86_64/sunvox "$APP".AppDir/
 
 # APPRUN
-rm -f "$APPIMAGE_DIR"/AppRun
-cat >> "$APPIMAGE_DIR"/AppRun << 'EOF'
+rm -f "$APP".AppDir/AppRun
+cat >> "$APP".AppDir/AppRun << 'EOF'
 #!/bin/sh
 HERE="$(dirname "$(readlink -f "${0}")")"
 exec ${HERE}/sunvox "$@"
 EOF
-chmod a+x "$APPIMAGE_DIR"/AppRun
+chmod a+x "$APP".AppDir/AppRun
 
 # LAUNCHER
 echo "[Desktop Entry]
@@ -59,23 +58,23 @@ Icon=sunvox
 Terminal=false
 StartupNotify=false
 MimeType=application/x-sunvox-project;application/x-sunvox-instrument;
-Categories=Audio;AudioVideo;Music;Sequencer;" > "$APPIMAGE_DIR"/"$APP".desktop
+Categories=Audio;AudioVideo;Music;Sequencer;" > "$APP".AppDir/"$APP".desktop
 
 # ICON
-if [ ! -f "$APPIMAGE_DIR"/"$APP".png ]; then
-	wget -q https://warmplace.ru/soft/sunvox/images/icon.png -O "$APPIMAGE_DIR"/"$APP".png || exit 1
+if [ ! -f "$APP".AppDir/"$APP".png ]; then
+	wget -q https://warmplace.ru/soft/sunvox/images/icon.png -O "$APP".AppDir/"$APP".png || exit 1
 fi
 
 # CONVERT THE APPDIR TO AN APPIMAGE
 
-APPNAME=$(cat "$APPIMAGE_DIR"/*.desktop | grep '^Name=' | head -1 | cut -c 6- | sed 's/ /-/g')
+APPNAME=$(cat "$APP".AppDir/*.desktop | grep '^Name=' | head -1 | cut -c 6- | sed 's/ /-/g')
 REPO="Database-of-pkg2appimaged-packages"
 TAG="sunvox"
 
 UPINFO="gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|$REPO|$TAG|*x86_64.AppImage.zsync"
 
 ARCH=x86_64 _appimagetool -u "$UPINFO" \
-	"$APPIMAGE_DIR" "$APPNAME"_"$VERSION"-x86_64.AppImage
+	"$APP".AppDir "$APPNAME"_"$VERSION"-x86_64.AppImage
 
 if ! test -f ./*.AppImage; then
 	echo "No AppImage available."; exit 1
