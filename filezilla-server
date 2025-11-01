@@ -65,7 +65,7 @@ chmod a+x "$APP".AppDir/AppRun
 
 # LAUNCHER
 echo "[Desktop Entry]
-Name=FileZilla
+Name=FileZilla Server
 GenericName=FTP client
 GenericName[da]=FTP-klient
 GenericName[de]=FTP-Client
