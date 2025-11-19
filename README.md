@@ -1,4 +1,4 @@
-This repository is needed to build various AppImage packages from the Debian Stable/Oldstable repository, from some PPAs for Ubuntu, JuNest-based AppImages (or "Archimages") and other sources.
+This repository is needed to build various AppImage packages from the Debian Stable/Oldstable, from some PPAs for Ubuntu and other sources.
 
 ------------------------------------------------------------------------
 
