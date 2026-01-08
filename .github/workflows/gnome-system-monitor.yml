@@ -1,4 +1,4 @@
-name: gnome-system-monitor3 Appimage
+name: gnome-system-monitor
 concurrency:
   group: build-${{ github.ref }}
   cancel-in-progress: true
@@ -18,14 +18,14 @@ jobs:
         sudo apt update && sudo apt install desktop-file-utils imagemagick
         sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
         sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-        chmod a+x ./gnome-system-monitor3
-        ./gnome-system-monitor3
+        chmod a+x ./gnome-system-monitor.sh
+        ./gnome-system-monitor.sh
         mkdir dist
         mv *AppImage dist/
     - name: Upload artifact
       uses: actions/upload-artifact@v4.4.0
       with:
-        name: gnome-system-monitor3-x86_64.AppImage
+        name: AppImage
         path: 'dist'
         
   release:
@@ -35,13 +35,13 @@ jobs:
       steps:
         - uses: actions/download-artifact@v4.1.8
           with:
-            name: gnome-system-monitor3-x86_64.AppImage
+            name: AppImage
 
         - name: release
           uses: marvinpinto/action-automatic-releases@latest
           with:
-            title: gnome-system-monitor3
-            automatic_release_tag: gnome-system-monitor3
+            title: gnome-system-monitor
+            automatic_release_tag: gnome-system-monitor
             prerelease: false
             draft: false
             files: |
