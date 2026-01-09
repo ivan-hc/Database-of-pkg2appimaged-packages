@@ -34,16 +34,22 @@ ingredients:
 # COMPILE SCHEMAS
 glib-compile-schemas "$APP"/"$APP".AppDir/usr/share/glib-2.0/schemas/ || echo "No ./usr/share/glib-2.0/schemas/"
 
-# LIBUNIONPRELOAD
-[ ! -f "$APP"/"$APP".AppDir/libunionpreload.so ] && wget https://github.com/project-portable/libunionpreload/releases/download/amd64/libunionpreload.so -O "$APP"/"$APP".AppDir/libunionpreload.so && chmod a+x libunionpreload.so
-
 # APPRUN
 rm -f "$APP"/"$APP".AppDir/AppRun
 cat >> "$APP"/"$APP".AppDir/AppRun << 'EOF'
 #!/bin/sh
 HERE="$(dirname "$(readlink -f "${0}")")"
-export UNION_PRELOAD="${HERE}"
-export LD_PRELOAD="${HERE}"/libunionpreload.so
+EOF
+
+if [ "$APP" != "baobab" ]; then
+	[ ! -f "$APP"/"$APP".AppDir/libunionpreload.so ] && wget https://github.com/project-portable/libunionpreload/releases/download/amd64/libunionpreload.so -O "$APP"/"$APP".AppDir/libunionpreload.so && chmod a+x libunionpreload.so
+	cat <<-'HEREDOC' >> "$APP"/"$APP".AppDir/AppRun
+	export UNION_PRELOAD="${HERE}"
+	export LD_PRELOAD="${HERE}"/libunionpreload.so
+	HEREDOC
+fi
+
+cat >> "$APP"/"$APP".AppDir/AppRun << 'EOF'
 export PATH="${HERE}"/usr/bin/:"${HERE}"/usr/sbin/:"${HERE}"/usr/games/:"${HERE}"/bin/:"${HERE}"/sbin/:"${PATH}"
 lib_dirs=$(find "$HERE"/usr/lib -type d | sed 's#usr/lib/#DEL\n#g' | grep -v DEL$)
 for d in $lib_dirs; do
