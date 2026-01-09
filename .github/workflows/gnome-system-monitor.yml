@@ -18,10 +18,15 @@ jobs:
         sudo apt update && sudo apt install desktop-file-utils imagemagick
         sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
         sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-        chmod a+x ./gnome-system-monitor.sh
-        ./gnome-system-monitor.sh
+
+        export APP="gnome-system-monitor"
+
+        chmod a+x ./builder.sh
+        ./builder.sh
+
         mkdir dist
         mv *AppImage* dist/
+
     - name: Upload artifact
       uses: actions/upload-artifact@v4.4.0
       with:
