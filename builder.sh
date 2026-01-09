@@ -5,7 +5,7 @@
 # CREATE A TEMPORARY DIRECTORY
 mkdir -p tmp && cd tmp || exit 1
 
-# DOWNLOADING THE DEPENDENCIES
+# DOWNLOAD DEPENDENCIES
 if test -f ./pkg2appimage; then
 	echo " pkg2appimage already exists" 1> /dev/null
 else
@@ -14,7 +14,7 @@ else
 fi
 chmod a+x ./appimagetool ./pkg2appimage
 
-# CREATING THE HEAD OF THE RECIPE
+# RECIPE
 echo "app: $APP
 binpatch: true
 
@@ -28,7 +28,7 @@ ingredients:
   packages:
     - $APP" > recipe.yml
 
-# DOWNLOAD ALL THE NEEDED PACKAGES AND COMPILE THE APPDIR
+# COMPILE THE APPDIR
 ./pkg2appimage ./recipe.yml
 
 # COMPILE SCHEMAS
@@ -36,39 +36,111 @@ glib-compile-schemas "$APP"/"$APP".AppDir/usr/share/glib-2.0/schemas/ || echo "N
 
 # APPRUN
 rm -f "$APP"/"$APP".AppDir/AppRun
-cat >> "$APP"/"$APP".AppDir/AppRun << 'EOF'
-#!/bin/sh
-HERE="$(dirname "$(readlink -f "${0}")")"
-EOF
 
-if [ "$APP" != "baobab" ]; then
-	[ ! -f "$APP"/"$APP".AppDir/libunionpreload.so ] && wget https://github.com/project-portable/libunionpreload/releases/download/amd64/libunionpreload.so -O "$APP"/"$APP".AppDir/libunionpreload.so && chmod a+x libunionpreload.so
+_add_apprun_header() {
+	cat <<-'HEREDOC' >> "$APP"/"$APP".AppDir/AppRun
+	#!/bin/sh
+	HERE="$(dirname "$(readlink -f "${0}")")"
+	export APPDIR="$HERE"  # <--- ADD THIS LINE
+	HEREDOC
+}
+
+_add_apprun_footer() {
+	cat <<-'HEREDOC' >> "$APP"/"$APP".AppDir/AppRun
+	export PATH="${HERE}"/usr/bin/:"${HERE}"/usr/sbin/:"${HERE}"/usr/games/:"${HERE}"/bin/:"${HERE}"/sbin/:"${PATH}"
+
+	lib_dirs_in=$(find "$HERE" -type f -name 'lib*.so*' -printf '%h\n' | sed "s|^$HERE||" | sort -u)
+	lib_dirs_out=$(ldd "${HERE}"/usr/bin/SAMPLE | awk '/=>/ { print $3 }' | xargs -r dirname | sort -u | grep -v "^/tmp")
+	for d in $lib_dirs_in; do export LD_LIBRARY_PATH="${HERE}""$d":"${LD_LIBRARY_PATH}"; done
+	for d in $lib_dirs_out; do export LD_LIBRARY_PATH="$d":"${LD_LIBRARY_PATH}"; done
+
+	export XDG_DATA_DIRS="${HERE}"/usr/share/:"${XDG_DATA_DIRS}"
+
+	export GSETTINGS_SCHEMA_DIR="${HERE}"/usr/share/glib-2.0/schemas/:"${GSETTINGS_SCHEMA_DIR}"
+
+	export GI_TYPELIB_PATH="${HERE}/usr/lib/girepository-1.0:${HERE}/usr/lib/x86_64-linux-gnu/girepository-1.0:${GI_TYPELIB_PATH}"
+
+	if test -d "${HERE}"/usr/lib/python*; then
+	  PYTHONVERSION=$(find "${HERE}"/usr/lib -type d -name "python*" | head -1 | sed 's:.*/::')
+	  export PYTHONPATH="${HERE}"/usr/lib/"$PYTHONVERSION"/site-packages/:"${HERE}"/usr/lib/"$PYTHONVERSION"/lib-dynload/:"${PYTHONPATH}"
+	  export PYTHONHOME="${HERE}"/usr/
+	fi
+
+	exec "${HERE}"/usr/bin/SAMPLE "$@"
+	HEREDOC
+	sed -i "s/SAMPLE/$APP/g" "$APP"/"$APP".AppDir/AppRun
+	chmod a+x "$APP"/"$APP".AppDir/AppRun
+}
+
+_add_libunionpreload() {
+	# Use libunionpreload.so to allow the AppImage to run any .gresource files (and locale files)
+	if [ ! -f "$APP"/"$APP".AppDir/libunionpreload.so ]; then
+		wget -q https://github.com/project-portable/libunionpreload/releases/download/amd64/libunionpreload.so -O "$APP"/"$APP".AppDir/libunionpreload.so && chmod a+x libunionpreload.so
+	fi
+	[ ! -f "$APP"/"$APP".AppDir/libunionpreload.so ] && exit 1
+
 	cat <<-'HEREDOC' >> "$APP"/"$APP".AppDir/AppRun
 	export UNION_PRELOAD="${HERE}"
 	export LD_PRELOAD="${HERE}"/libunionpreload.so
 	HEREDOC
+}
+
+_add_liblocale_intercept() {
+	# Create and use liblocale_intercept.so to allow your app talking your language
+	if [ ! -f ./liblocale_intercept.so ]; then
+		cat <<-'HEREDOC' >> locale_intercept.c
+		#define _GNU_SOURCE
+		#include <dlfcn.h>
+		#include <stdlib.h>
+		#include <string.h>
+		#include <stdio.h>
+
+		// This overrides the bindtextdomain function for ANY app
+		char* bindtextdomain(const char* domainname, const char* dirname) {
+		    // Load the real system function
+		    static char* (*real_bindtextdomain)(const char*, const char*) = NULL;
+		    if (!real_bindtextdomain) {
+		        real_bindtextdomain = dlsym(RTLD_NEXT, "bindtextdomain");
+		    }
+
+		    // If APPDIR is set (which your AppRun will do), redirect ALL locales there
+		    char* appdir = getenv("APPDIR");
+		    if (appdir) {
+		        // Construct the path to the AppImage's locale folder
+		        char fixed_path[512];
+		        snprintf(fixed_path, sizeof(fixed_path), "%s/usr/share/locale", appdir);
+
+		        // Force the app to use this path, ignoring the hardcoded path
+		        return real_bindtextdomain(domainname, fixed_path);
+		    }
+
+		    // Fallback if not running as AppImage
+		    return real_bindtextdomain(domainname, dirname);
+		}
+		HEREDOC
+		gcc -shared -fPIC -o liblocale_intercept.so locale_intercept.c -ldl
+	fi
+
+	[ ! -f ./liblocale_intercept.so ] && exit 1
+	cp -r liblocale_intercept.so "$APP"/"$APP".AppDir/usr/lib/
+
+	cat <<-'HEREDOC' >> "$APP"/"$APP".AppDir/AppRun
+	export LD_PRELOAD="${HERE}"/usr/lib/liblocale_intercept.so:"${LD_PRELOAD}"
+	HEREDOC
+}
+
+GRESOURCE_FILE=$(find "$APP"/"$APP".AppDir/usr/share -type f -name *.gresource)
+if [ -n "$GRESOURCE_FILE" ]; then
+	_add_apprun_header
+	_add_libunionpreload
+	_add_apprun_footer
+else
+	_add_apprun_header
+	_add_liblocale_intercept
+	_add_apprun_footer
 fi
 
-cat >> "$APP"/"$APP".AppDir/AppRun << 'EOF'
-export PATH="${HERE}"/usr/bin/:"${HERE}"/usr/sbin/:"${HERE}"/usr/games/:"${HERE}"/bin/:"${HERE}"/sbin/:"${PATH}"
-lib_dirs=$(find "$HERE"/usr/lib -type d | sed 's#usr/lib/#DEL\n#g' | grep -v DEL$)
-for d in $lib_dirs; do
-	export LD_LIBRARY_PATH="${HERE}"/usr/lib/"$d"/:"${LD_LIBRARY_PATH}"
-done
-export LD_LIBRARY_PATH="${HERE}"/usr/lib/:"${HERE}"/usr/lib/x86_64-linux-gnu/:"${HERE}"/lib/:"${HERE}"/lib64/:"${HERE}"/lib/x86_64-linux-gnu/:"${LD_LIBRARY_PATH}"
-export LD_LIBRARY_PATH=/lib/:/lib64/:/lib/x86_64-linux-gnu/:/usr/lib/:"${LD_LIBRARY_PATH}" # Uncomment to use system libraries
-export XDG_DATA_DIRS="${HERE}"/usr/share/:"${XDG_DATA_DIRS}"
-export GSETTINGS_SCHEMA_DIR="${HERE}"/usr/share/glib-2.0/schemas/:"${GSETTINGS_SCHEMA_DIR}"
-
-exec "${HERE}"/usr/bin/SAMPLE "$@"
-EOF
-sed -i "s/SAMPLE/$APP/g" "$APP"/"$APP".AppDir/AppRun
-
-# MADE THE APPRUN EXECUTABLE
-chmod a+x "$APP"/"$APP".AppDir/AppRun
-# END OF THE PART RELATED TO THE APPRUN, NOW WE WELL SEE IF EVERYTHING WORKS ----------------------------------------------------------------------
-
-# IMPORT THE LAUNCHER AND THE ICON TO THE APPDIR IF THEY NOT EXIST
+# LAUNCHER
 if test -f "$APP"/"$APP".AppDir/*.desktop; then
 	echo "The desktop file exists"
 else
@@ -93,8 +165,11 @@ for i in $hicolor_dirs; do
 done
 cp "$APP"/"$APP".AppDir/usr/share/applications/*"$ICONNAME"* "$APP"/"$APP".AppDir/ 2>/dev/null
 
-# UNCOMMENT THE FOLLOWING LINE TO REMOVE FILES IN "METAINFO" IN CASE OF ERRORS WITH "APPSTREAM"
-rm -Rf "$APP"/"$APP".AppDir/usr/share/metainfo/* "$APP"/"$APP".AppDir/usr/share/doc "$APP"/"$APP".AppDir/usr/share/perl "$APP"/"$APP".AppDir/usr/lib/*/perl
+# REMOVE METAINFO TO PREVENT "APPSTREAM" ERRORS
+rm -Rf "$APP"/"$APP".AppDir/usr/share/metainfo/*
+
+# REMOVE BLOATWARE
+rm -Rf "$APP"/"$APP".AppDir/usr/share/doc "$APP"/"$APP".AppDir/usr/share/perl "$APP"/"$APP".AppDir/usr/lib/*/perl
 
 # EXPORT THE APP TO AN APPIMAGE
 APPNAME=$(cat "$APP"/"$APP".AppDir/*.desktop | grep '^Name=' | head -1 | cut -c 6- | sed 's/ /-/g')
