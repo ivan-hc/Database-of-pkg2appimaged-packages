@@ -7,8 +7,17 @@ A blast from the past to have applications that are as consistent as possible in
 If customization and consistency are your priorities (and if you want to use a desktop that doesn't look like a phone), this repository is for you.
 
 ------------------------------------------------------------------------
+## Usage
+The process involves using a single script named builder.sh that takes care of everything. All you need to do is set and export the $APP variable. In our example, `baobab`, a disk space analyzer that needs no introduction:
+```
+export APP="baobab"
+chmod a+x ./builder.sh
+./builder.sh
+```
 
-NOTE: I have nothing against the GNOME team, and I think they're doing a great job, meeting their aspirations. However, those aspirations aren't compatible with what I want.
+------------------------------------------------------------------------
+## Motivation
+I have nothing against the GNOME team, and I think they're doing a great job, meeting their aspirations. However, those aspirations aren't compatible with what I want.
 
 I already made the switch from GNOME 2 to XFCE4 in 2012, while still using GNOME apps that I considered essential. I even accepted the design changes once the apps were upgraded to GTK4 and then to libadwaita, even though the window title bar was something completely different from what was used by other programs installed on the system that wasn't GNOME-related. I even tried to counter the forced use of the "light" theme by exporting variables and modifying system files, just to have a "dark" theme in all my apps. However, from version 48 onwards, something changed so that these tricks no longer worked. And I got tired of chasing all this bullshit. I don't care about new versions if the core functionality of those apps is the same, and all that changes is a damn theme designed specifically to work exclusively in GNOME.
 
