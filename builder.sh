@@ -129,16 +129,16 @@ _add_liblocale_intercept() {
 	HEREDOC
 }
 
+_add_apprun_header
+
 GRESOURCE_FILE=$(find "$APP"/"$APP".AppDir/usr/share -type f -name *.gresource)
 if [ -n "$GRESOURCE_FILE" ]; then
-	_add_apprun_header
 	_add_libunionpreload
-	_add_apprun_footer
 else
-	_add_apprun_header
 	_add_liblocale_intercept
-	_add_apprun_footer
 fi
+
+_add_apprun_footer
 
 # LAUNCHER
 if test -f "$APP"/"$APP".AppDir/*.desktop; then
